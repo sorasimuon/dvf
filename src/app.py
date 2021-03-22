@@ -5,6 +5,7 @@
     """
 
 from flask import Flask, make_response, jsonify, request
+from flask_swagger_ui import get_swaggerui_blueprint
 import requests
 from helper.validate_params import getValidCityParam
 from helper.build_URL import buildURL
@@ -12,6 +13,19 @@ from model.city import City
 
 
 app = Flask(__name__)
+
+### Swagger specific ###
+SWAGGER_URL = "/swagger"
+API_URL = "/static/swagger.json"
+SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "API DVF (Demande de valeur Fonciere)"
+    }
+)
+app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+### End Swagger specifics ###
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -21,7 +35,8 @@ def helloWorld():
 
 @app.route('/city', methods=['GET'])
 def getCityExtract():
-    """get DVF for a specific city
+    """
+    Get DVF for a specific city
 
     Returns:
         application/json: List of DVF in the specific city

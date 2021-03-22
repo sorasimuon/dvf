@@ -1,0 +1,71 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "description": "DVF - Demande de valeur fonciere donne acces aux informations immobiliere francaises sur un historique de 5 ans",
+    "version": "1.0.0",
+    "title": "DVF (Demande de valeur Fonciere)"
+  },
+  "servers": [
+    {
+      "url": "/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "City Request",
+      "description": "Retrieve housing statistics information regarding one specific city"
+    }
+  ],
+  "paths": {
+    "/city": {
+      "get": {
+        "tags": ["City Request"],
+        "summary": "returns City",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/components/schemas/City"
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "City": {
+        "properties": {
+          "city_inseeCode": {
+            "type": "string",
+            "format": "number"
+          },
+          "city_latitude": {
+            "type": "number",
+            "format": "number"
+          },
+          "city_longitude": {
+            "type": "number",
+            "format": "number"
+          },
+          "city_name": {
+            "type": "string",
+            "format": "string"
+          },
+          "city_postalCode": {
+            "type": "string",
+            "format": "string"
+          },
+          "current_avg_price_sq_meter_apartment": {
+            "type": "number",
+            "format": "number"
+          },
+          "current_avg_price_sq_meter_house": {
+            "type": "number",
+            "format": "number"
+          }
+        }
+      }
+    }
+  }
+}
