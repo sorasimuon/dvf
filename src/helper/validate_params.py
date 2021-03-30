@@ -15,16 +15,17 @@ def getValidCityParam(arguments):
         for key, value in arguments.items():
             if key.lower() in authorized_args:
                 # checkey code_commune validity
-                if key.lower() == "code_commune" and isValidCityCode(value):
-                    args[key] = value
-                    continue
-                else:
-                    raise ValueError(key)
+                if key.lower() == "code_commune":
+                    if isValidCityCode(value):
+                        args[key] = value
+                        continue
+                    else:
+                        raise ValueError(key)
                 args[key] = value
             else:
                 raise NameError(key)
     except NameError as e:
-        return f"Name Error : Field name {''.join(e.args)} is invalid"
+        return f'''Name Error : Field name "{''.join(e.args)}" is invalid'''
     except ValueError as e:
         return f"ValueError: value format is incorrect"
     return args
