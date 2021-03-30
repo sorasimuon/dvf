@@ -10,6 +10,7 @@ import requests
 from helper.validate_params import getValidCityParam
 from helper.build_URL import buildURL
 from model.city import City
+from typing import List, Dict
 
 
 app = Flask(__name__)
@@ -27,49 +28,89 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
 app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 ### End Swagger specifics ###
 
+BASE_URL = "http://api.cquest.org/dvf"
+
+# Routes
+def getCityExtract(arguments) -> List:
+    """Return GET response to DVF external API
+    """
+
+    try:
+        args = getValidCityParam(arguments)
+
+        if not isinstance(args,str):
+            URL = buildURL(BASE_URL , args)
+        else:
+            raise Exception(args)
+        response = requests.get(URL)
+        if response.status_code == 200:
+            data = response.json()
+
+            if data["nb_resultats"] > 0:
+                return data
+            else:
+                return "No result Found"
+        else:
+            raise Exception (f"Error {response.status_code}")
+
+    except Exception as e:
+        # print("".join(e.args))
+        return make_response("".join(e.args), 400)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def helloWorld():
     return "You are requesting the DVF service - entitled for providing historical housing transactions in France"
 
 
-@app.route('/city', methods=['GET'])
-def getCityExtract():
-    """
-    Get DVF for a specific city
+@app.route('/city/summary', methods=['GET'])
+def getCitySummary():
+    """Return a summary of information regarding a city (avg price per sq meter, admin infor of the city)
+
+    Raises:
+        Exception: "Error occured"
 
     Returns:
-        application/json: List of DVF in the specific city
+        Dict: key-value pairs of information
     """
-    # Get the URL to request
-    args = getValidCityParam(request.args)
-    BASE_URL = "http://api.cquest.org/dvf"
-    URL = buildURL(BASE_URL, args)
 
-    # Request the DVF of the city
-    try:
-        response = requests.get(URL)
-        if response.status_code == 200:
-            data = response.json()
-            # Create City
-            if data["nb_resultats"] > 0:
-                city = City(data)
+    # Get raw data from DVF API
+    data = getCityExtract(request.args)
 
-                result = {"current_avg_price_sq_meter_house": city.current_avg_price_sq_meter_house,
-                          "current_avg_price_sq_meter_apartment": city.current_avg_price_sq_meter_apartment,
-                          "city_name": city.name,
-                          "city_postalCode": city.postalCode,
-                          "city_inseeCode": city.inseeCode,
-                          "city_latitude": city.gps_latitude,
-                          "city_longitude": city.gps_longitude
-                          }
+    # Compute summary data
+    if isinstance(data, Dict):
+        city = City(data)
 
-                # return make_response(city.historical.to_json(orient="records"), 200)
-                return make_response(jsonify(result), 200)
-        else:
-            raise Exception("Recherche introuvable")
-    except Exception as e:
-        return make_response("Error occured", 400)
+        result = {"current_avg_price_sq_meter_house": city.current_avg_price_sq_meter_house,
+            "current_avg_price_sq_meter_apartment": city.current_avg_price_sq_meter_apartment,
+            "city_name": city.name,
+            "city_postalCode": city.postalCode,
+            "city_inseeCode": city.inseeCode,
+            "city_latitude": city.gps_latitude,
+            "city_longitude": city.gps_longitude
+            }
+        
+        return make_response(jsonify(result), 200)
+    else:
+        return make_response(data, 404)  # No result Found
+
+
+@app.route("/city/history", methods=['GET'])
+def getCityHistory() -> List:
+    """Return the list of historical housing data of a specific city
+
+    Returns:
+        List: list of historical housing sales
+    """
+
+    # Get raw data from DVF API
+    data = getCityExtract(request.args)
+
+    # Compute 
+
+
+
+
 
 
 if __name__ == "__main__":

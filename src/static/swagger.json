@@ -17,7 +17,7 @@
     }
   ],
   "paths": {
-    "/city": {
+    "/city/summary": {
       "get": {
         "tags": ["City Request"],
         "summary": "returns City",
@@ -25,7 +25,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/components/schemas/City"
+              "$ref": "#/components/schemas/city"
             }
           }
         }
