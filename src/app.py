@@ -106,7 +106,12 @@ def getCityHistory() -> List:
     # Get raw data from DVF API
     data = getCityExtract(request.args)
 
-    # Compute 
+    # Return data
+
+    if isinstance(data, Dict):
+        return make_response(data, 200)
+    else:
+        return make_response(data,400)
 
 
 

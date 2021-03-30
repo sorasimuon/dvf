@@ -40,4 +40,4 @@ def isValidCityCode(code):
 
     regex = re.compile("^[0-9]{5}$")
 
-    return True if regex.match(code) else False
+    return True if regex.match(code) else False 
